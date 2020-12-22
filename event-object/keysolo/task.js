@@ -1,9 +1,11 @@
 class Game {
   constructor(container) {
     this.container = container;
+    this.timerId = null;
     this.wordElement = container.querySelector('.word');
     this.winsElement = container.querySelector('.status__wins');
     this.lossElement = container.querySelector('.status__loss');
+    this.timerElement = container.querySelector('.status__timer');
 
     this.reset();
 
@@ -11,19 +13,43 @@ class Game {
   }
 
   reset() {
+    this.stopTimer();
     this.setNewWord();
     this.winsElement.textContent = 0;
     this.lossElement.textContent = 0;
+    this.timerElement.textContent = document.querySelectorAll('.symbol').length;
+    this.startTimer();
   }
 
+  startTimer () {
+    this.timerID = setInterval(this.timer.bind(this), 1000);
+  }
+
+  timer () {
+    let timerCount = parseInt(this.timerElement.textContent, 10);
+    timerCount -= 1;
+    this.timerElement.textContent = timerCount;
+    if (timerCount < 0) {
+      this.fail();
+    }
+  }
+
+  stopTimer () {
+    clearInterval(this.timerID);
+    this.timerID = null;
+  }
+
+
   registerEvents() {
-    /*
-      TODO:
-      Написать обработчик события, который откликается
-      на каждый введённый символ.
-      В случае правильного ввода слова вызываем this.success()
-      При неправильном вводе символа - this.fail();
-     */
+    document.addEventListener('keydown', (event) => {
+      const symbolCheck = this.currentSymbol.textContent;
+      const symbolInput = event.key;
+      if (symbolCheck == symbolInput) {
+        this.success();
+      } else {
+        this.fail();
+      }
+    });
   }
 
   success() {
@@ -37,7 +63,10 @@ class Game {
       alert('Победа!');
       this.reset();
     }
+    this.stopTimer();
     this.setNewWord();
+    this.timerElement.textContent = document.querySelectorAll('.symbol').length;
+    this.startTimer();
   }
 
   fail() {
@@ -45,7 +74,10 @@ class Game {
       alert('Вы проиграли!');
       this.reset();
     }
+    this.stopTimer();
     this.setNewWord();
+    this.timerElement.textContent = document.querySelectorAll('.symbol').length;
+    this.startTimer();
   }
 
   setNewWord() {
